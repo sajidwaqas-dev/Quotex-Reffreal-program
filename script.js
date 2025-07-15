@@ -107,21 +107,43 @@ copyBtn.addEventListener('click', () => {
     setTimeout(() => { copyBtn.innerText = 'Copy Link'; }, 2000);
 });
 
+// === vvvv TABDEEL SHUDA CODE vvvv ===
 submitIdBtn.addEventListener('click', () => {
     const tradingId = tradingIdInput.value.trim();
     if (!tradingId) return alert('Please enter an ID.');
+    
     const user = auth.currentUser;
     if (!user) return;
-    
-    db.collection('users').doc(user.uid).collection('submittedIDs').add({
-        tradingId: tradingId,
-        status: 'pending',
-        submittedAt: firebase.firestore.FieldValue.serverTimestamp()
-    }).then(() => {
-        alert('ID submitted!');
-        tradingIdInput.value = '';
+
+    const submittedIDsRef = db.collection('users').doc(user.uid).collection('submittedIDs');
+
+    // Step 1: Check if the ID already exists
+    submittedIDsRef.where('tradingId', '==', tradingId).get().then(querySnapshot => {
+        // Step 2: If querySnapshot is not empty, it means the ID was found
+        if (!querySnapshot.empty) {
+            alert('This ID has already been submitted.'); // User ko bataein
+            return; // Function ko rokein
+        }
+
+        // Step 3: If ID does not exist, add it to the database
+        submittedIDsRef.add({
+            tradingId: tradingId,
+            status: 'pending',
+            submittedAt: firebase.firestore.FieldValue.serverTimestamp()
+        }).then(() => {
+            alert('ID submitted!');
+            tradingIdInput.value = '';
+        }).catch(error => {
+            console.error("Error submitting ID: ", error);
+            alert("There was an error submitting the ID. Please try again.");
+        });
+
+    }).catch(error => {
+        console.error("Error checking ID: ", error);
+        alert("Could not verify the ID. Please check your connection and try again.");
     });
 });
+// === ^^^^ TABDEEL SHUDA CODE ^^^^ ===
 
 withdrawalBtn.addEventListener('click', async () => {
     const user = auth.currentUser;
