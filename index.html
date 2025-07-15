@@ -8,66 +8,64 @@
 </head>
 <body>
 
-    <div class="dashboard-container">
+    <!-- Login Container - Initially Visible -->
+    <div id="login-container" class="dashboard-container">
+        <h1>Welcome</h1>
+        <p>Please log in to access your dashboard.</p>
+        <button id="login-btn" class="btn">Login with Google</button>
+    </div>
 
-        <!-- Top Header: Profile, Balance -->
+    <!-- Main Dashboard Container - Initially Hidden -->
+    <div id="main-dashboard" class="dashboard-container" style="display: none;">
+
         <header class="dashboard-header">
             <div class="user-profile">
-                <img src="https://iili.io/FVeQclf.png" alt="DP" class="profile-pic">
-                <span id="username">Sajid-Dev</span>
+                <img id="profile-pic" src="" alt="DP" class="profile-pic">
+                <span id="username">Loading...</span>
             </div>
             <div class="balance-section">
                 <h2>Balance: $<span id="balance-amount">0.00</span></h2>
-                <button id="withdrawal-btn" class="btn">Withdraw</button>
+                <button id="logout-btn" class="btn-logout">Logout</button>
             </div>
         </header>
 
-        <!-- Main Content -->
         <main class="main-content">
-            
-            <!-- Simple Stats -->
             <div class="stats-bar">
-                <span>Total Members: <b id="total-members">0</b></span>
+                <span>Approved Members: <b id="total-members">0</b></span>
                 <span>Pending IDs: <b id="pending-ids">0</b></span>
             </div>
 
             <div class="task-box">
-                <div class="task-header">
-                    <h3>Step 1: Refer & Earn</h3>
-                    <p>Copy this link and send it to your members. After they join and deposit, proceed to Step 2.</p>
-                    <div class="link-box">
-                        <input type="text" value="https://your-referral-link.com/ref=sajid" id="referral-link" readonly>
-                        <button id="copy-btn" class="btn-copy">Copy</button>
-                    </div>
-                </div>
-                
-                <div class="task-header">
-                    <h3>Step 2: Submit Trading ID for Bonus</h3>
-                    <p>Enter your member's Trading ID below and submit for approval.</p>
-                    <input type="text" id="trading-id-input" placeholder="Enter Member's Trading ID here">
-                    <button id="submit-id-btn" class="btn">Submit for Approval</button>
-                </div>
+                <!-- Submit ID Section -->
+                <h3>Submit Trading ID for Bonus</h3>
+                <input type="text" id="trading-id-input" placeholder="Enter Member's Trading ID">
+                <button id="submit-id-btn" class="btn">Submit for Approval</button>
+            </div>
+            
+            <!-- Withdrawal Section -->
+            <div class="task-box">
+                <h3>Withdraw Balance</h3>
+                <input type="number" id="withdrawal-amount-input" placeholder="Amount (e.g., 10)">
+                <button id="withdrawal-btn" class="btn">Request Withdrawal</button>
             </div>
         </main>
         
-        <!-- Withdrawal History Section -->
         <section class="history-section">
-            <h3>Transaction History</h3>
-            <div id="history-list">
-                <!-- Real-time history will be loaded here from script.js -->
-                <p class="loading-text">Loading History...</p>
-            </div>
+            <h3>Transaction History (Submitted IDs)</h3>
+            <div id="history-list"></div>
         </section>
 
+        <section class="history-section">
+            <h3>Withdrawal History</h3>
+            <div id="withdrawal-history-list"></div>
+        </section>
     </div>
 
-    <!-- === IMPORTANT: UPDATED SCRIPT SECTION === -->
-    <!-- Firebase SDK (Software Development Kit) -->
+    <!-- Firebase SDKs with Authentication -->
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 
-    <!-- Our Firebase Config and Main Script -->
-    <!-- "type=module" is very important -->
     <script type="module" src="firebase-config.js"></script>
     <script type="module" src="script.js"></script>
 </body>
