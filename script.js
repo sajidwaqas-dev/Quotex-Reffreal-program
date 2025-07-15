@@ -1,25 +1,3 @@
-// NEW: Listen for changes on the account type dropdown
-accountTypeInput.addEventListener('change', () => {
-    const selectedType = accountTypeInput.value;
-
-    if (selectedType === 'Easypaisa') {
-        accountNumberInput.placeholder = 'Easypasa Account Number';
-    } else if (selectedType === 'Jazzcash') {
-        accountNumberInput.placeholder = 'Jazzcash Account Number';
-    } else if (selectedType === 'Binance') {
-        accountNumberInput.placeholder = 'Binance ID Number';
-    }
-});```
-
----
-
-### **Aapki Aasani ke Liye: Mukammal `script.js` File**
-
-Main jaanta hoon aapko poori file zyada aasan lagti hai. Isliye main aapko mukammal `script.js` file bhej raha hoon jismein yeh chota sa badlao kar diya gaya hai.
-
-Aap apni `script.js` ka saara code delete karke uski jagah yeh final code paste kar dein.
-
-```javascript
 import { firebaseConfig } from './firebase-config.js';
 
 // Initialize Firebase
@@ -50,7 +28,7 @@ const accountTypeInput = document.getElementById('account-type-input');
 const accountNumberInput = document.getElementById('account-number-input');
 const withdrawalHistoryList = document.getElementById('withdrawal-history-list');
 
-// --- 1. AUTHENTICATION LOGIC ---
+// --- AUTHENTICATION LOGIC ---
 loginBtn.addEventListener('click', () => auth.signInWithPopup(googleProvider));
 logoutBtn.addEventListener('click', () => auth.signOut());
 
@@ -65,7 +43,7 @@ auth.onAuthStateChanged(user => {
     }
 });
 
-// --- 2. USER SETUP & DATA LOADING ---
+// --- USER SETUP & DATA LOADING ---
 function setupUser(user) {
     const userRef = db.collection('users').doc(user.uid);
     userRef.get().then(doc => {
@@ -120,7 +98,7 @@ function loadAllUserDataFor(user) {
     });
 }
 
-// --- 3. USER ACTIONS ---
+// --- USER ACTIONS ---
 copyBtn.addEventListener('click', () => {
     referralLinkInput.select();
     referralLinkInput.setSelectionRange(0, 99999);
@@ -180,18 +158,4 @@ withdrawalBtn.addEventListener('click', async () => {
         accountNameInput.value = '';
         accountNumberInput.value = '';
     });
-});
-
-// === YEH NAYA CODE ADD KIYA GAYA HAI ===
-// This will listen for changes on the account type dropdown
-accountTypeInput.addEventListener('change', () => {
-    const selectedType = accountTypeInput.value;
-
-    if (selectedType === 'Easypaisa') {
-        accountNumberInput.placeholder = 'Easypasa Account Number';
-    } else if (selectedType === 'Jazzcash') {
-        accountNumberInput.placeholder = 'Jazzcash Account Number';
-    } else if (selectedType === 'Binance') {
-        accountNumberInput.placeholder = 'Binance ID Number';
-    }
 });
