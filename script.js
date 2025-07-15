@@ -16,11 +16,17 @@ const usernameEl = document.getElementById('username');
 const balanceAmountEl = document.getElementById('balance-amount');
 const totalMembersEl = document.getElementById('total-members');
 const pendingIdsEl = document.getElementById('pending-ids');
+
+// Referral Link Elements
+const copyBtn = document.getElementById('copy-btn');
+const referralLinkInput = document.getElementById('referral-link');
+
+// Submit ID Elements
 const submitIdBtn = document.getElementById('submit-id-btn');
 const tradingIdInput = document.getElementById('trading-id-input');
 const historyList = document.getElementById('history-list');
 
-// New Withdrawal Elements
+// Withdrawal Elements
 const withdrawalBtn = document.getElementById('withdrawal-btn');
 const withdrawalAmountInput = document.getElementById('withdrawal-amount-input');
 const accountNameInput = document.getElementById('account-name-input');
@@ -28,24 +34,28 @@ const accountTypeInput = document.getElementById('account-type-input');
 const accountNumberInput = document.getElementById('account-number-input');
 const withdrawalHistoryList = document.getElementById('withdrawal-history-list');
 
-// --- AUTHENTICATION ---
+// --- 1. AUTHENTICATION LOGIC ---
 loginBtn.addEventListener('click', () => auth.signInWithPopup(googleProvider));
 logoutBtn.addEventListener('click', () => auth.signOut());
 
+// This is the main controller that runs when user logs in or out
 auth.onAuthStateChanged(user => {
     if (user) {
+        // User is logged in
         loginContainer.style.display = 'none';
         mainDashboard.style.display = 'block';
         setupUser(user);
     } else {
+        // User is logged out
         loginContainer.style.display = 'block';
         mainDashboard.style.display = 'none';
     }
 });
 
-// --- USER SETUP & DATA LOADING ---
+// --- 2. USER SETUP & DATA LOADING ---
 function setupUser(user) {
     const userRef = db.collection('users').doc(user.uid);
+    // Check if user exists in our database, if not, create a profile.
     userRef.get().then(doc => {
         if (!doc.exists) {
             userRef.set({
@@ -56,18 +66,26 @@ function setupUser(user) {
             });
         }
     });
-    loadUserData(user);
+    // Set user's unique referral link
+    // IMPORTANT: Change "your-main-domain.com" to your actual website domain if you get one. For now, it uses the GitHub URL.
+    const siteURL = window.location.origin + window.location.pathname;
+    referralLinkInput.value = `${siteURL}?ref=${user.uid}`;
+    
+    loadAllUserDataFor(user);
 }
 
-function loadUserData(user) {
+// This function starts all the real-time listeners for the logged-in user
+function loadAllUserDataFor(user) {
     profilePicEl.src = user.photoURL;
     usernameEl.innerText = user.displayName;
     const userDocRef = db.collection('users').doc(user.uid);
 
+    // Listener for Balance
     userDocRef.onSnapshot(doc => {
         balanceAmountEl.innerText = (doc.data()?.balance || 0).toFixed(2);
     });
 
+    // Listener for Submitted IDs (History & Stats)
     userDocRef.collection('submittedIDs').orderBy('submittedAt', 'desc').onSnapshot(snapshot => {
         historyList.innerHTML = '';
         let approvedMembers = 0, pendingCount = 0;
@@ -84,6 +102,7 @@ function loadUserData(user) {
         pendingIdsEl.innerText = pendingCount;
     });
 
+    // Listener for Withdrawal History
     userDocRef.collection('withdrawals').orderBy('requestedAt', 'desc').onSnapshot(snapshot => {
         withdrawalHistoryList.innerHTML = '';
         snapshot.forEach(doc => {
@@ -98,7 +117,18 @@ function loadUserData(user) {
     });
 }
 
-// --- USER ACTIONS ---
+// --- 3. USER ACTIONS ---
+
+// Action: Copy referral link
+copyBtn.addEventListener('click', () => {
+    referralLinkInput.select();
+    referralLinkInput.setSelectionRange(0, 99999); // For mobile
+    document.execCommand('copy');
+    copyBtn.innerText = 'Copied!';
+    setTimeout(() => { copyBtn.innerText = 'Copy Link'; }, 2000);
+});
+
+// Action: Submit a new Trading ID
 submitIdBtn.addEventListener('click', () => {
     const tradingId = tradingIdInput.value.trim();
     if (!tradingId) return alert('Please enter an ID.');
@@ -115,23 +145,25 @@ submitIdBtn.addEventListener('click', () => {
     });
 });
 
+// Action: Request a new Withdrawal
 withdrawalBtn.addEventListener('click', async () => {
     const user = auth.currentUser;
     if (!user) return;
 
-    // --- NEW: Detailed Withdrawal Logic ---
+    // Get all details from the form
     const amount = parseFloat(withdrawalAmountInput.value);
     const accountName = accountNameInput.value.trim();
     const accountType = accountTypeInput.value;
     const accountNumber = accountNumberInput.value.trim();
 
-    // Validation
+    // --- Validations ---
     if (!accountName || !accountNumber) return alert('Please fill all account details.');
     if (isNaN(amount) || amount <= 0) return alert('Please enter a valid amount.');
+    
     const currentBalance = parseFloat(balanceAmountEl.innerText);
     if (amount > currentBalance) return alert('Withdrawal amount cannot exceed your balance.');
 
-    // --- NEW: Rule to check for existing pending withdrawal ---
+    // --- Rule: Check for existing pending withdrawal ---
     const userWithdrawalsRef = db.collection('users').doc(user.uid).collection('withdrawals');
     const pendingQuery = await userWithdrawalsRef.where('status', '==', 'pending').get();
     
@@ -139,7 +171,7 @@ withdrawalBtn.addEventListener('click', async () => {
         return alert('You already have a withdrawal request in process. Please wait for it to be completed.');
     }
     
-    // If no pending request, proceed to add a new one
+    // --- If all checks pass, add the request to the database ---
     userWithdrawalsRef.add({
         amount: amount,
         accountName: accountName,
@@ -149,6 +181,7 @@ withdrawalBtn.addEventListener('click', async () => {
         requestedAt: firebase.firestore.FieldValue.serverTimestamp()
     }).then(() => {
         alert('Withdrawal request submitted successfully!');
+        // Clear the form fields
         withdrawalAmountInput.value = '';
         accountNameInput.value = '';
         accountNumberInput.value = '';
