@@ -8,14 +8,14 @@
 </head>
 <body>
 
-    <!-- Login Container - Initially Visible -->
+    <!-- Login Container -->
     <div id="login-container" class="dashboard-container">
         <h1>Welcome</h1>
         <p>Please log in to access your dashboard.</p>
         <button id="login-btn" class="btn">Login with Google</button>
     </div>
 
-    <!-- Main Dashboard Container - Initially Hidden -->
+    <!-- Main Dashboard Container - Hidden by default -->
     <div id="main-dashboard" class="dashboard-container" style="display: none;">
 
         <header class="dashboard-header">
@@ -36,15 +36,21 @@
             </div>
 
             <div class="task-box">
-                <!-- Submit ID Section -->
                 <h3>Submit Trading ID for Bonus</h3>
                 <input type="text" id="trading-id-input" placeholder="Enter Member's Trading ID">
                 <button id="submit-id-btn" class="btn">Submit for Approval</button>
             </div>
             
-            <!-- Withdrawal Section -->
+            <!-- === UPDATED WITHDRAWAL SECTION === -->
             <div class="task-box">
                 <h3>Withdraw Balance</h3>
+                <input type="text" id="account-name-input" placeholder="Account Holder Name">
+                <select id="account-type-input">
+                    <option value="Easypaisa">Easypaisa</option>
+                    <option value="Jazzcash">Jazzcash</option>
+                    <option value="Binance">Binance (USDT)</option>
+                </select>
+                <input type="text" id="account-number-input" placeholder="Account / Binance Address">
                 <input type="number" id="withdrawal-amount-input" placeholder="Amount (e.g., 10)">
                 <button id="withdrawal-btn" class="btn">Request Withdrawal</button>
             </div>
@@ -59,9 +65,19 @@
             <h3>Withdrawal History</h3>
             <div id="withdrawal-history-list"></div>
         </section>
+
+        <!-- === NEW HELPLINE SECTION === -->
+        <footer class="helpline-section">
+            <h3>Need Help? Contact Us</h3>
+            <div class="helpline-links">
+                <a href="https://wa.me/923490093530" target="_blank" class="helpline-btn whatsapp">WhatsApp</a>
+                <a href="https://t.me/Sajid_ktk302" target="_blank" class="helpline-btn telegram">Telegram</a>
+            </div>
+        </footer>
+
     </div>
 
-    <!-- Firebase SDKs with Authentication -->
+    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
